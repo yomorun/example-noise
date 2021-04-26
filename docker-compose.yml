@@ -6,8 +6,10 @@ services:
     image: yomorun/noise-sink:latest
     container_name: noise-sink
     restart: always
+    # command can be ignored, use default settings.
     command: ["sh", "-c", "go run main.go"]
     ports:
+      # must expose the port
       - "8000:8000"
     networks:
       - noisenet
@@ -16,8 +18,10 @@ services:
     image: yomorun/noise-web:latest
     container_name: noise-web
     restart: always
+    # command can be ignored, use default settings.
     command: ["yarn", "start"]
     environment:
+      # If not deployed locally, please fill in the IP address of the host computer.
       - SOCKET_SERVER_ADDR=ws://localhost:8000
     ports:
       - "3000:3000"
@@ -32,6 +36,7 @@ services:
     image: yomorun/noise-flow:latest
     container_name: noise-flow
     restart: always
+    # command can be ignored, use default settings.
     command: ["sh", "-c", "yomo run app.go -p 4242"]
     networks:
       - noisenet
@@ -40,6 +45,7 @@ services:
     image: yomorun/noise-zipper:latest
     container_name: noise-zipper
     restart: always
+    # command can be ignored, use default settings.
     command: ["sh", "-c", "yomo wf run workflow.yaml"]
     links:
       - noise-flow
@@ -54,6 +60,7 @@ services:
     image: yomorun/noise-source:latest
     container_name: noise-source
     restart: always
+    # command can be ignored, use default settings.
     command: ["sh", "-c", "go run main.go"]
     environment:
       - YOMO_SOURCE_MQTT_ZIPPER_ADDR=noise-zipper:9999
@@ -69,10 +76,12 @@ services:
     image: yomorun/noise-emitter:latest
     container_name: noise-emitter
     restart: always
+    # command can be ignored, use default settings.
     command: ["sh", "-c", "go run main.go"]
     environment:
       - YOMO_SOURCE_MQTT_BROKER_ADDR=tcp://noise-source:1883
-      - YOMO_SOURCE_MQTT_PUB_INTERVAL=1000
+      # This value sets the frequency of production data.
+      - YOMO_SOURCE_MQTT_PUB_INTERVAL=500
     links:
       - noise-source
     depends_on:
@@ -83,4 +92,3 @@ services:
 networks:
   noisenet:
     driver: bridge
-    
