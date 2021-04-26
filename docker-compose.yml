@@ -1,0 +1,86 @@
+version: '3.5'
+
+services:
+
+  noise-sink:
+    image: yomorun/noise-sink:latest
+    container_name: noise-sink
+    restart: always
+    command: ["sh", "-c", "go run main.go"]
+    ports:
+      - "8000:8000"
+    networks:
+      - noisenet
+
+  noise-web:
+    image: yomorun/noise-web:latest
+    container_name: noise-web
+    restart: always
+    command: ["yarn", "start"]
+    environment:
+      - SOCKET_SERVER_ADDR=ws://localhost:8000
+    ports:
+      - "3000:3000"
+    links:
+      - noise-sink
+    depends_on:
+      - noise-sink
+    networks:
+      - noisenet
+
+  noise-flow:
+    image: yomorun/noise-flow:latest
+    container_name: noise-flow
+    restart: always
+    command: ["sh", "-c", "yomo run app.go -p 4242"]
+    networks:
+      - noisenet
+
+  noise-zipper:
+    image: yomorun/noise-zipper:latest
+    container_name: noise-zipper
+    restart: always
+    command: ["sh", "-c", "yomo wf run workflow.yaml"]
+    links:
+      - noise-flow
+      - noise-sink
+    depends_on:
+      - noise-flow
+      - noise-sink
+    networks:
+      - noisenet
+
+  noise-source:
+    image: yomorun/noise-source:latest
+    container_name: noise-source
+    restart: always
+    command: ["sh", "-c", "go run main.go"]
+    environment:
+      - YOMO_SOURCE_MQTT_ZIPPER_ADDR=noise-zipper:9999
+      - YOMO_SOURCE_MQTT_SERVER_ADDR=0.0.0.0:1883
+    links:
+      - noise-zipper
+    depends_on:
+      - noise-zipper
+    networks:
+      - noisenet
+
+  noise-emitter:
+    image: yomorun/noise-emitter:latest
+    container_name: noise-emitter
+    restart: always
+    command: ["sh", "-c", "go run main.go"]
+    environment:
+      - YOMO_SOURCE_MQTT_BROKER_ADDR=tcp://noise-source:1883
+      - YOMO_SOURCE_MQTT_PUB_INTERVAL=1000
+    links:
+      - noise-source
+    depends_on:
+      - noise-source
+    networks:
+      - noisenet
+
+networks:
+  noisenet:
+    driver: bridge
+    
