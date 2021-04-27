@@ -4,16 +4,16 @@
 
 ## 案例介绍
 
-本案例描述[YoMo](https://github.com/yomorun/yomo)在工业互联网数据采集中的应用，以收集噪声传感器的数据为例，涉及数据收集/处理/工作流/数据展示的全过程，为了更方便体验运行效果，还会对其进行容器化，并通过docker-compose一键部署体验版。
+本案例描述[YoMo](https://github.com/yomorun/yomo)在工业互联网数据采集中的应用，以收集噪声传感器的数据为例，涉及数据收集/处理/工作流/数据展示的全过程，为了便于体验运行效果，还会对其进行容器化，并通过docker快速部署体验版。
 
 
 
 ## 案例述语
 
 - xxx-source: 表示一个数据源收集程序
-- xxx-zipper: 表示一个工作流和负载引擎
+- xxx-zipper: 表示一个工作流和控制平面
 - xxx-flow: 表示一个工作流单元，用于实际的业务逻辑处理，被zipper调度。
-- xxx-sink: 表示一个数据的传送目的，一般经过flow处理后发送给本服务落地数据或者传递给下一级代理，被zipper调度。
+- xxx-sink: 表示一个数据的传送目的地，一般落地数据库或者传递给下一级代理，被zipper调度。
 
 
 
@@ -23,8 +23,8 @@
 
 从图中可见，区分了边缘端和云端两个独立区域，区域之间是通过弱网或者互联网连接，这里简单介绍一下各个服务：
 
-- 边缘端部署了传感器设备(Noise)和数据收集网关(ZLAN)，网关会定时向设备请求状态数据，并转换为MQTT协议数据发送给noise-source收集器，source便起到转换编码并与YoMo工作流引擎zipper建立连接的作用。关于传感器设备和数据收集网关的硬件选购和配置可以参与这篇文章：[https://yomo.run/zh/aiot](https://yomo.run/zh/aiot)。
-- 为了不想购买硬件设备的开发者，这里也提供了一个noise-emitter的模拟发生器用来模拟产生噪声数据。
+- 边缘端部署了传感器设备(Noise)和数据收集网关(ZLAN)，网关会定时向设备请求状态数据，并转换为MQTT协议数据发送给noise-source收集器，source起到转换编码并与YoMo工作流引擎zipper建立连接的作用。关于传感器设备和数据收集网关的硬件选购和配置可以参与这篇文章：[https://yomo.run/zh/aiot](https://yomo.run/zh/aiot)。
+- 对于不想购买硬件设备的开发者，这里也提供了一个noise-emitter模拟器用来产生噪声数据。
 - zipper是一个强大的工作流引擎，通过编排(workflow.yaml)可以调度多个flow和sink，让他们以流的方式把业务逻辑串联起来，以满足复杂的需求。与之相连的所有通信和编解码均以QUIC+Y3进行，提供可靠实时的流式处理，全程体验流式编程的乐趣。
 - noise-flow 实现把噪音值除以10的简单处理，并且监控如果超过一定阀值后输出日志进行警报。
 - noise-sink 没有真的输出到数据库，而是通过搭建一个WebSocket服务器，把实时的噪音状态输出给任意的网页进行展示消费。
@@ -34,44 +34,44 @@
 
 ## 案例代码
 
-下表提供了案例的全部代码，方便感兴趣的开发者们查看，参照这个案体的代码照样画葫芦，可以轻松开发出类拟场景的其他案例。
+下表提供了案例的全部代码，供感兴趣的朋友查看，参照这个案体的代码，可以轻松开发出类拟场景的案例。
 
 | 项目          | 地址                                                         | 说明                          |
 | :------------ | :----------------------------------------------------------- | :---------------------------- |
-| noise-source  | https://github.com/yomorun/yomo-source-noise-example         | 收集MQTT消息格式的噪音数据    |
-| noise-zipper  | https://github.com/yomorun/yomo-zipper-noise-example         | 编排本案体的工作流和数据流向  |
-| noise-flow    | https://github.com/yomorun/yomo-flow-noise-example           | 对噪音数据进行预处理和警报    |
-| noise-sink    | https://github.com/yomorun/yomo-sink-socketio-server-example | 提供WebSocket服务用于数据展示 |
-| noise-web     | https://github.com/yomorun/yomo-sink-socket-io-example       | 消费WebSocket服务展示噪音状态 |
-| noise-emitter | https://github.com/yomorun/yomo-source-noise-emitter-example | 模拟产生噪声数据              |
+| noise-source  | [yomo-source-noise-example](https://github.com/yomorun/yomo-source-noise-example) | 收集MQTT消息格式的噪音数据    |
+| noise-zipper  | [yomo-zipper-noise-example](https://github.com/yomorun/yomo-zipper-noise-example) | 编排本案体的工作流和数据流向  |
+| noise-flow    | [yomo-flow-noise-example](https://github.com/yomorun/yomo-flow-noise-example) | 对噪音数据进行预处理和警报    |
+| noise-sink    | [yomo-sink-socketio-server-example](https://github.com/yomorun/yomo-sink-socketio-server-example) | 提供WebSocket服务用于数据展示 |
+| noise-web     | [yomo-sink-socket-io-example](https://github.com/yomorun/yomo-sink-socket-io-example) | 消费WebSocket服务展示噪音状态 |
+| noise-emitter | [yomo-source-noise-emitter-example](https://github.com/yomorun/yomo-source-noise-emitter-example) | 模拟产生噪声数据              |
 
 
 
 ## 容器化
 
-通过下载上节的项目代码可以进行本地原生部署体验YoMo开发的乐趣，但是对于想急于马上看到效果的朋来说，更爽的方式当然是先一键运行起来看看效果先，所以对上节的项目也做了容器化处理，每个项目的根目录均提供了Dockerfile文件，并且在hub.docker.com提供了官方镜像下载：
+通过下载上节的项目代码可以进行本地原生部署，体验YoMo开发的乐趣，但是对于想急于马上看到效果的朋来说，更爽的方式当然是先快速运行起来看看效果，所以对上节的项目也做了容器化处理，每个项目的根目录均提供了Dockerfile文件，并且在hub.docker.com提供了官方镜像下载：
 
 | 项目          | 镜像地址                                                     | 最新版本                     |
 | ------------- | ------------------------------------------------------------ | ---------------------------- |
-| noise-source  | https://hub.docker.com/r/yomorun/noise-source                | yomorun/noise-source:latest  |
-| noise-zipper  | https://hub.docker.com/r/yomorun/noise-zipper                | yomorun/noise-zipper:latest  |
-| noise-flow    | https://hub.docker.com/r/yomorun/noise-flow                  | yomorun/noise-flow:latest    |
-| noise-sink    | https://hub.docker.com/r/yomorun/noise-sink                  | yomorun/noise-sink:latest    |
-| noise-web     | https://hub.docker.com/r/yomorun/noise-web                   | yomorun/noise-web:latest     |
-| noise-emitter | https://hub.docker.com/repository/docker/yomorun/noise-emitter | yomorun/noise-emitter:latest |
-| quic-mqtt     | https://hub.docker.com/r/yomorun/quic-mqtt                   | yomorun/quic-mqtt:latest     |
+| noise-source  | [yomorun/noise-source](https://hub.docker.com/r/yomorun/noise-source) | yomorun/noise-source:latest  |
+| noise-zipper  | [yomorun/noise-zipper](https://hub.docker.com/r/yomorun/noise-zipper) | yomorun/noise-zipper:latest  |
+| noise-flow    | [yomorun/noise-flow](https://hub.docker.com/r/yomorun/noise-flow) | yomorun/noise-flow:latest    |
+| noise-sink    | [yomorun/noise-sink](https://hub.docker.com/r/yomorun/noise-sink) | yomorun/noise-sink:latest    |
+| noise-web     | [yomorun/noise-web](https://hub.docker.com/r/yomorun/noise-web) | yomorun/noise-web:latest     |
+| noise-emitter | [yomorun/noise-emitter](https://hub.docker.com/repository/docker/yomorun/noise-emitter) | yomorun/noise-emitter:latest |
+| quic-mqtt     | [yomorun/quic-mqtt](https://hub.docker.com/r/yomorun/quic-mqtt) | yomorun/quic-mqtt:latest     |
 
-yomorun/quic-mqtt:latest 是开发xxx-source的基础镜像，可以快速打包自定义代码，但在体验这个例子中可以暂时忽略。
+yomorun/quic-mqtt:latest 是开发xxx-source的基础镜像，可以快速打包自定义代码，但本案例中可以暂时忽略。
 
 
 
 ## 运行案例
 
-### 一键运行
+### 快速运行
 
 有了上述的官方镜像就简单多了，只需简单的步骤就可以体验案体的效果：
 
-- 编辑一个[docker-compose.yml](https://github.com/yomorun/example-noise/blob/main/docker-compose.yml)文件。
+- 下载[docker-compose.yml](https://github.com/yomorun/example-noise/blob/main/docker-compose.yml)文件。
 - 运行 `docker-compose up -d`
 - 先喝杯茶稍作等待，通过访问 [http://localhost:3000/]( http://localhost:3000/) 可看到如下效果图：
 
@@ -96,8 +96,8 @@ noise-zipper    sh -c yomo wf run workflow ...   Up      9999/udp
 
 - noise-sink 暴露了8000的WebSocket端口提给noise-web展示消费。
 - noise-web 暴露了3000的http端口用于展示实时的噪声值和延时。
-- noise-zipper/noise-flow/noise-sink 均提供了udp端口的QUIC服务，全流程QUIC通信与开篇的架构图对应。
-- noise-source 是我们对接不同设备的关键，提供标准1883的MQTT端口，当然也可以修改的。
+- noise-zipper/noise-flow/noise-sink 均提供了udp端口的QUIC服务，全流程QUIC通信。
+- noise-source 是我们对接不同设备的关键，提供1883的MQTT端口，当然也可以修改的。
 
 ### 查看日志
 
@@ -137,7 +137,7 @@ noise-zipper    sh -c yomo wf run workflow ...   Up      9999/udp
   noise-zipper     | 2021/04/26 14:44:33 ✅ Connect to Socket.io Server (noise-sink:4141) successfully.
   ```
 
-  工作流引擎连接上了noise-flow和noise-sink两个工作流的处理单元了。
+  工作流引擎连接上了noise-flow和noise-sink这两个工作流的处理单元了。
 
 - 查看noise-flow  `docker-compose logs -f noise-flow`
 
@@ -148,7 +148,7 @@ noise-zipper    sh -c yomo wf run workflow ...   Up      9999/udp
   noise-flow       | [172.19.0.6] 1619425036923 > value: 561.900024 ⚡️=1ms
   ```
 
-  噪声数据因为是模拟的，远远超过了预设的阀值，打印出警告信息。
+  噪声数据是模拟器产生的，远远超过了预设的阀值，打印出警告信息。
 
 ## 引用参考
 
