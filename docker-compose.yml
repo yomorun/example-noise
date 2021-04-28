@@ -19,7 +19,7 @@ services:
     container_name: noise-web
     restart: always
     # command can be ignored, use default settings.
-    command: ["yarn", "start"]
+    command: ["sh", "-c", "yarn start"]
     environment:
       # If not deployed locally, please fill in the IP address of the host computer.
       - SOCKET_SERVER_ADDR=ws://localhost:8000
