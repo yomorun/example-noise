@@ -7,7 +7,7 @@
 
 # What is noise-source?
 
-This is part of the [example-noise](https://github.com/yomorun/example-noise), which describes how to write a **[noise-source](https://github.com/yomorun/yomo-source-noise-example)** to receive data from the device, and send it to the back-end workflow engine(**[noise-zipper](https://github.com/yomorun/yomo-zipper-noise-example)**) after it has been transformed and encoded.
+This is part of the [example-noise](https://github.com/yomorun/example-noise), which describes how to write a [noise-source](https://github.com/yomorun/yomo-source-noise-example) to receive data from the device, and send it to the back-end workflow engine([noise-zipper](https://github.com/yomorun/yomo-zipper-noise-example)) after it has been transformed and encoded.
 
 ![arch1.png](https://github.com/yomorun/example-noise/raw/main/docs/arch1.png?raw=true)
 
@@ -31,7 +31,7 @@ View [license information](https://github.com/yomorun/yomo/blob/master/LICENSE) 
 
 As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
 
-Some additional license information which was able to be auto-detected might be found in [`noise-source`](https://github.com/yomorun/yomo-source-noise-example).
+Some additional license information which was able to be auto-detected might be found in [`noise-source`](https://github.com/yomorun/yomo-source-noise-example)
 
 As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
 
