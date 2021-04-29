@@ -4,7 +4,7 @@
 
 ## 案例介绍
 
-本案例描述[YoMo](https://github.com/yomorun/yomo)在工业互联网数据采集中的应用，以收集噪声传感器的数据为例，涉及数据收集/处理/工作流/数据展示的全过程，为了便于体验运行效果，还会对其进行容器化，并通过docker快速部署体验版。
+本案例描述 [YoMo](https://github.com/yomorun/yomo) 在工业互联网数据采集中的应用，以收集噪声传感器的数据为例，涉及数据收集/处理/工作流/数据展示的全过程，为了便于体验运行效果，还会对其进行容器化，并通过docker快速部署体验版。
 
 
 
@@ -44,10 +44,11 @@
 | noise-sink    | [yomo-sink-socketio-server-example](https://github.com/yomorun/yomo-sink-socketio-server-example) | 提供WebSocket服务用于数据展示 |
 | noise-web     | [yomo-sink-socket-io-example](https://github.com/yomorun/yomo-sink-socket-io-example) | 消费WebSocket服务展示噪音状态 |
 | noise-emitter | [yomo-source-noise-emitter-example](https://github.com/yomorun/yomo-source-noise-emitter-example) | 模拟产生噪声数据              |
+| quic-mqtt     | [yomo-source-mqtt-starter](https://github.com/yomorun/yomo-source-mqtt-starter) | 开发xxx-source的通用组件      |
 
 
 
-## 容器化
+## 容器化部署
 
 通过下载上节的项目代码可以进行本地原生部署，体验YoMo开发的乐趣，但是对于想急于马上看到效果的朋来说，更爽的方式当然是先快速运行起来看看效果，所以对上节的项目也做了容器化处理，每个项目的根目录均提供了Dockerfile文件，并且在hub.docker.com提供了官方镜像下载：
 
@@ -65,13 +66,15 @@ yomorun/quic-mqtt:latest 是开发xxx-source的基础镜像，可以快速打包
 
 
 
-## 运行案例
+## 快速部署
+
+为了快速运行体验运行效果，本小节描述如何整合容器化在同一宿主机上运行。
 
 ### 快速运行
 
 有了上述的官方镜像就简单多了，只需简单的步骤就可以体验案体的效果：
 
-- 下载[docker-compose.yml](https://github.com/yomorun/example-noise/blob/main/docker-compose.yml)文件。
+- 下载 [docker-compose.yml](https://raw.githubusercontent.com/yomorun/example-noise/main/docker-compose.yml) 文件。
 - 运行 `docker-compose up -d`
 - 先喝杯茶稍作等待，通过访问 [http://localhost:3000/]( http://localhost:3000/) 可看到如下效果图：
 
@@ -150,11 +153,73 @@ noise-zipper    sh -c yomo wf run workflow ...   Up      9999/udp
 
   噪声数据是模拟器产生的，远远超过了预设的阀值，打印出警告信息。
 
+## 分区部署
+
+经过上一小节的`快速部署`应该了解如何在同一台宿主机上进行容器化部署并查看各个服务的状态，但与我们的开始提出的云端与边缘分离的实际架构图不符，现实场景下source/sink这个Serverless类型的服务会部署在云端，而数据接收器source会部署在边缘，那本节就来分离他们看看如果编排部署。
+
+### 云端部署
+
+#### 部署服务
+
+目标是把 [noise-zipper](https://github.com/yomorun/yomo-zipper-noise-example) / [noise-flow](https://github.com/yomorun/yomo-flow-noise-example) / [noise-sink](https://github.com/yomorun/yomo-sink-socketio-server-example) 部署在云端，可以查看下面的配置文件和运行步骤：
+
+- 下载 [docker-compose-cloud.yml](https://raw.githubusercontent.com/yomorun/example-noise/main/docker-compose-cloud.yml) 文件。
+- 运行 `docker-compose -f docker-compose-cloud.yml up -d`
+
+#### 查看状态
+
+通过 `docker-compose -f docker-compose-cloud.yml ps`查看服务状态
+
+```text
+    Name                  Command               State                Ports              
+----------------------------------------------------------------------------------------
+noise-flow     sh -c yomo run app.go -p 4242    Up      4242/udp                        
+noise-sink     sh -c go run main.go             Up      4141/udp, 0.0.0.0:8000->8000/tcp
+noise-zipper   sh -c yomo wf run workflow ...   Up      0.0.0.0:9999->9999/udp   
+```
+
+- noise-zipper 暴露了云端工作流引擎的服务端口，因为通信是QUIC协议，所以可见是一个udp端口。
+- noise-sink 暴露了通过WebSocket数据消费的端口，让其它Web服务展示消费。
+
+### 边端部署
+
+#### 部署服务
+
+目标是把 [noise-source](https://github.com/yomorun/yomo-source-noise-example) / [noise-web](https://github.com/yomorun/yomo-sink-socket-io-example) / [noise-emitter](https://github.com/yomorun/yomo-source-noise-emitter-example) 部署在边缘端，可以查看下面的配置文件和运行步骤：
+
+- 下载 [docker-compose-edge.yml](https://raw.githubusercontent.com/yomorun/example-noise/main/docker-compose-edge.yml) 文件。
+- 运行 `docker-compose -f docker-compose-edge.yml up -d`
+
+#### 查看状态
+
+通过 `docker-compose -f docker-compose-edge.yml ps`查看服务状态
+
+```text
+    Name                   Command               State           Ports         
+-------------------------------------------------------------------------------
+noise-emitter   sh -c go run main.go             Up                            
+noise-source    sh -c go run main.go             Up      1883/tcp              
+noise-web       docker-entrypoint.sh sh -c ...   Up      0.0.0.0:3000->3000/tcp
+```
+
+- noise-web 暴露了效果展示网站的端口。通过访问 [http://localhost:3000/]( http://localhost:3000/) 可以查看到之前相同的展示界面。
+
+### 路由器部署
+
+到了这里就结束了？还没有！实际上边缘部署的情况要比云端复杂，因为边缘设备很多是老旧，不一定支持Docker容器，这时你可以选择通过源代码编译成不同平台的二进制运行文件，直接就把noise-source跑在对应的平台上。当然，更方便的选择是购买一台支持Docker容器的路由器，直接就可以通过容器部署在边缘端了，目前YoMo与iKuai达成深度合作，携手推进工业互联网在各个领域的应用与发展，可以通过下面链接查看详细的信息：
+
+- [iKuai+YoMo加速工业互联网的云原生时代](https://mp.weixin.qq.com/s/5-VFQPgULIcjmDJv2J3-9Q)
+- [iKuai+YoMo 边缘计算赋能工业互联网](https://github.com/yomorun/yomo-source-mqtt-starter/blob/main/docs/IKUAI_CN.md)
+
 ## 引用参考
 
-上面就是这个噪声传感器案例从数据收集处理到展示的所有代码了。对于需要扩展或者引申到别的应用场景的开发者，可以点开每个项目的链接进行详细阅读，每个项目都是微服务化构建，服务角色明确，代码清晰易懂，如果有什么问题欢迎提出Issues或者讨论。参考链接：
+上面就是这个噪声传感器案例从数据收集处理到展示的所有代码和部署过程了。对于需要扩展或者引申到别的应用场景的开发者，可以点开每个项目的链接进行详细阅读，每个项目都是微服务化构建，服务角色明确，代码清晰易懂，如果有什么问题欢迎提出Issues或者讨论。参考链接：
 
 - https://yomo.run/
 - https://github.com/yomorun/yomo
 - https://github.com/yomorun/example-noise
+
+最后，补充一张带有各个服务可暴露端口号的架构图，以便碰到困难的朋友查阅。
+
+![arch2](https://github.com/yomorun/example-noise/blob/main/docs/arch2.png?raw=true)
 

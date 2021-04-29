@@ -1,0 +1,44 @@
+version: '3.5'
+
+services:
+
+  noise-web:
+    image: local/noise-web:latest
+    container_name: noise-web
+    restart: always
+    command: ["sh", "-c", "yarn start"]
+    ports:
+      - "3000:3000"
+    networks:
+      - edgenet
+
+  noise-source:
+    image: local/noise-source:latest
+    container_name: noise-source
+    restart: always
+    command: ["sh", "-c", "go run main.go"]
+    environment:
+      # set your host ip on cloud
+      - YOMO_SOURCE_MQTT_ZIPPER_ADDR=192.168.108.120:9999
+      - YOMO_SOURCE_MQTT_SERVER_ADDR=0.0.0.0:1883
+    networks:
+      - edgenet
+
+  noise-emitter:
+    image: local/noise-emitter:latest
+    container_name: noise-emitter
+    restart: always
+    command: ["sh", "-c", "go run main.go"]
+    environment:
+      - YOMO_SOURCE_MQTT_BROKER_ADDR=tcp://noise-source:1883
+      - YOMO_SOURCE_MQTT_PUB_INTERVAL=500
+    links:
+      - noise-source
+    depends_on:
+      - noise-source
+    networks:
+      - edgenet
+
+networks:
+  edgenet:
+    driver: bridge
