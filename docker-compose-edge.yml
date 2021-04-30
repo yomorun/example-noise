@@ -3,17 +3,19 @@ version: '3.5'
 services:
 
   noise-web:
-    image: local/noise-web:latest
+    image: yomorun/noise-web:latest
     container_name: noise-web
     restart: always
-    command: ["sh", "-c", "yarn start"]
+    command: ["yarn", "start"]
+    environment:
+      - SOCKET_SERVER_ADDR=ws://localhost:8000
     ports:
       - "3000:3000"
     networks:
       - edgenet
 
   noise-source:
-    image: local/noise-source:latest
+    image: yomorun/noise-source:latest
     container_name: noise-source
     restart: always
     command: ["sh", "-c", "go run main.go"]
@@ -25,7 +27,7 @@ services:
       - edgenet
 
   noise-emitter:
-    image: local/noise-emitter:latest
+    image: yomorun/noise-emitter:latest
     container_name: noise-emitter
     restart: always
     command: ["sh", "-c", "go run main.go"]

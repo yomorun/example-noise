@@ -3,7 +3,7 @@ version: '3.5'
 services:
 
   noise-sink:
-    image: local/noise-sink:latest
+    image: yomorun/noise-sink:latest
     container_name: noise-sink
     restart: always
     command: ["sh", "-c", "go run main.go"]
@@ -13,7 +13,7 @@ services:
       - cloudnet
 
   noise-flow:
-    image: local/noise-flow:latest
+    image: yomorun/noise-flow:latest
     container_name: noise-flow
     restart: always
     command: ["sh", "-c", "yomo run app.go -p 4242"]
@@ -21,7 +21,7 @@ services:
       - cloudnet
 
   noise-zipper:
-    image: local/noise-zipper:latest
+    image: yomorun/noise-zipper:latest
     container_name: noise-zipper
     restart: always
     command: ["sh", "-c", "yomo wf run workflow.yaml"]

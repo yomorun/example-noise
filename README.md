@@ -80,7 +80,10 @@ yomorun/quic-mqtt:latest 是开发xxx-source的基础镜像，可以快速打包
 
  ![show1](https://github.com/yomorun/example-noise/blob/main/docs/show1.jpg?raw=true)
 
-这里Delay的值要注意一下，因为是通过Docker容器部署，各个容器的时钟并不对齐得这么完美，如果要查看到最精确的延时值，需要把noise-source和noise-web原生部署到同一个宿主机上。
+注意事项：
+
+- 这里Delay的值可能不很准确，因为是通过Docker容器部署，各个容器的时钟并不对齐得这么完美，如果要查看到最精确的延时值，需要把noise-source和noise-web原生部署到同一个宿主机上。
+- 如果部署不是在本地，则需要修改docker-compose.yml文件中的环境变量SOCKET_SERVER_ADDR为你部署服务的宿主机地址。
 
 ### 查看状态
 
@@ -189,6 +192,10 @@ noise-zipper   sh -c yomo wf run workflow ...   Up      0.0.0.0:9999->9999/udp
 
 - 下载 [docker-compose-edge.yml](https://raw.githubusercontent.com/yomorun/example-noise/main/docker-compose-edge.yml) 文件。
 - 运行 `docker-compose -f docker-compose-edge.yml up -d`
+
+注意事项：
+
+- Docker-compose-edge.yml中的SOCKET_SERVER_ADDR变量需要设置为cloud端的source-sink暴露的地址和端口(默认8000)。
 
 #### 查看状态
 
