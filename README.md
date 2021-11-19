@@ -55,8 +55,8 @@
 | 项目          | 镜像地址                                                     | 最新版本                     |
 | ------------- | ------------------------------------------------------------ | ---------------------------- |
 | noise-source  | [yomorun/noise-source](https://hub.docker.com/r/yomorun/noise-source) | yomorun/noise-source:latest  |
-| noise-zipper  | [yomorun/noise-zipper](https://hub.docker.com/r/yomorun/noise-zipper) | yomorun/noise-zipper:latest  |
-| noise-flow    | [yomorun/noise-flow](https://hub.docker.com/r/yomorun/noise-flow) | yomorun/noise-flow:latest    |
+| noise-zipper  | [yomorun/noise-zipper](https://hub.docker.com/r/yomorun/noise-zipper) | yomorun/noise-zipper:0.0.2  |
+| noise-flow    | [yomorun/noise-flow](https://hub.docker.com/r/yomorun/noise-flow) | yomorun/noise-flow:0.0.2    |
 | noise-sink    | [yomorun/noise-sink](https://hub.docker.com/r/yomorun/noise-sink) | yomorun/noise-sink:latest    |
 | noise-web     | [yomorun/noise-web](https://hub.docker.com/r/yomorun/noise-web) | yomorun/noise-web:latest     |
 | noise-emitter | [yomorun/noise-emitter](https://hub.docker.com/repository/docker/yomorun/noise-emitter) | yomorun/noise-emitter:latest |
