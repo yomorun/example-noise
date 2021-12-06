@@ -15,7 +15,7 @@ services:
       - edgenet
 
   noise-source:
-    image: yomorun/noise-source:latest
+    image: yomorun/noise-source:0.0.6
     container_name: noise-source
     restart: always
     command: ["sh", "-c", "go run main.go"]

@@ -2,40 +2,48 @@ version: '3.5'
 
 services:
 
+  noise-zipper:
+    image: yomorun/noise-zipper:0.0.6
+    container_name: noise-zipper
+    restart: always
+    # command can be ignored, use default settings.
+    command: ["sh", "-c", "yomo serve -c workflow.yaml"]
+    ports:
+      - "9999:9999/udp"
+    networks:
+      - cloudnet
+
   noise-sink:
-    image: yomorun/noise-sink:latest
+    image: yomorun/noise-sink:0.0.6
     container_name: noise-sink
     restart: always
+    # command can be ignored, use default settings.
     command: ["sh", "-c", "go run main.go"]
+    environment:
+      - YOMO_SINK_APP_NAME=SocketServer
+      - YOMO_SINK_ZIPPER_ADDR=noise-zipper:9999
     ports:
+      # must expose the port
       - "8000:8000"
+    links:
+      - noise-zipper
+    depends_on:
+      - noise-zipper
     networks:
       - cloudnet
 
   noise-flow:
-    image: yomorun/noise-flow:latest
+    image: yomorun/noise-flow:0.0.6
     container_name: noise-flow
     restart: always
-    command: ["sh", "-c", "yomo run app.go -p 4242"]
-    networks:
-      - cloudnet
-
-  noise-zipper:
-    image: yomorun/noise-zipper:latest
-    container_name: noise-zipper
-    restart: always
-    command: ["sh", "-c", "yomo wf run workflow.yaml"]
-    ports:
-      - "9999:9999/udp"
+    # command can be ignored, use default settings.
+    command: ["sh", "-c", "yomo run app.go -m ./go.mod -u noise-zipper:9999 -n NoiseServerless"]
     links:
-      - noise-flow
-      - noise-sink
+      - noise-zipper
     depends_on:
-      - noise-flow
-      - noise-sink
+      - noise-zipper
     networks:
       - cloudnet
-
 
 networks:
   cloudnet:

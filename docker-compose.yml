@@ -3,7 +3,7 @@ version: '3.5'
 services:
 
   noise-zipper:
-    image: yomorun/noise-zipper:0.0.2
+    image: yomorun/noise-zipper:0.0.6
     container_name: noise-zipper
     restart: always
     # command can be ignored, use default settings.
@@ -12,7 +12,7 @@ services:
       - noisenet
 
   noise-sink:
-    image: yomorun/noise-sink:latest
+    image: yomorun/noise-sink:0.0.6
     container_name: noise-sink
     restart: always
     # command can be ignored, use default settings.
@@ -49,7 +49,7 @@ services:
       - noisenet
 
   noise-flow:
-    image: yomorun/noise-flow:0.0.2
+    image: yomorun/noise-flow:0.0.6
     container_name: noise-flow
     restart: always
     # command can be ignored, use default settings.
@@ -62,7 +62,7 @@ services:
       - noisenet
 
   noise-source:
-    image: yomorun/noise-source:latest
+    image: yomorun/noise-source:0.0.6
     container_name: noise-source
     restart: always
     # command can be ignored, use default settings.
